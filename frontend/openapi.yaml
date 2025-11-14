@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: Catálogo de Filmes API
+  version: 1.0.0
+  description: API para buscar filmes na OMDb e gerenciar um catálogo local em SQLite.
+
+servers:
+  - url: http://127.0.0.1:5000
+    description: Servidor local de desenvolvimento
+
+paths:
+  /search:
+    get:
+      summary: Busca filme na OMDb por título
+      description: >
+        Consulta a API externa OMDb e retorna informações básicas
+        de um filme a partir do título.
+      parameters:
+        - name: title
+          in: query
+          description: Título do filme a ser buscado
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Filme encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  rating:
+                    type: string
+                  year:
+                    type: string
+                  poster:
+                    type: string
+        '400':
+          description: Parâmetro title ausente
+        '404':
+          description: Filme não encontrado na OMDb
+
+  /movies:
+    get:
+      summary: Lista todos os filmes do catálogo
+      responses:
+        '200':
+          description: Lista de filmes salvos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+    post:
+      summary: Adiciona um novo filme ao catálogo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '201':
+          description: Filme criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Dados inválidos
+
+  /movies/{id}:
+    get:
+      summary: Obtém um filme pelo ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Filme encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Filme não encontrado
+    put:
+      summary: Atualiza um filme existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        '200':
+          description: Filme atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Filme não encontrado
+    delete:
+      summary: Remove um filme do catálogo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Filme removido com sucesso
+        '404':
+          description: Filme não encontrado
+
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        rating:
+          type: string
+        year:
+          type: string
+        poster:
+          type: string
+
+    MovieInput:
+      type: object
+      properties:
+        title:
+          type: string
+        rating:
+          type: string
+        year:
+          type: string
+        poster:
+          type: string
+      required:
+        - title

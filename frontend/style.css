@@ -1,0 +1,65 @@
+/* Estilo geral do corpo da página */
+body {
+    margin: 0;                /* Remove margens padrão do navegador */
+    padding: 0;               /* Remove espaçamentos internos padrão */
+    color: #fff;              /* Cor padrão do texto (branco) */
+    font-family: Arial, sans-serif; /* Fonte padrão */
+}
+
+/* Classe aplicada ao body para usar imagem de fundo */
+.bg-img {
+    background-image: url('img/Filmstrip.jpg'); /* Caminho da imagem de fundo */
+    background-size: cover;                     /* Faz a imagem cobrir toda a área */
+    background-position: center;                /* Centraliza a imagem */
+    background-repeat: no-repeat;               /* Não repete a imagem */
+}
+
+/* Container centralizado que contém o conteúdo principal */
+.container {
+    width: 80%;                     /* Largura em relação à tela */
+    margin: auto;                   /* Centraliza horizontalmente */
+    padding: 20px;                  /* Espaçamento interno */
+    background: rgba(0,0,0,0.6);    /* Fundo preto semi-transparente */
+    border-radius: 10px;            /* Arredonda bordas */
+    margin-top: 40px;               /* Espaço superior em relação ao topo da tela */
+}
+
+/* Estilo para inputs de texto */
+input {
+    padding: 10px;      /* Espaçamento interno */
+    width: 70%;         /* Largura relativa ao container */
+}
+
+/* Estilo geral para botões */
+button {
+    padding: 10px;      /* Espaçamento interno */
+    cursor: pointer;    /* Mostra a mãozinha ao passar o mouse */
+}
+
+/* Estilo específico para o botão principal (Buscar / Salvar) */
+.btn-add {
+    padding: 10px 20px;         /* Espaçamento interno (vertical x horizontal) */
+    background-color: #28a745;  /* Cor de fundo (verde) */
+    border: none;               /* Remove borda padrão */
+    color: #fff;                /* Cor do texto (branco) */
+    font-weight: bold;          /* Deixa o texto em negrito */
+    cursor: pointer;            /* Mostra a mãozinha ao passar o mouse */
+    margin-top: 15px;           /* Espaço superior */
+    border-radius: 6px;         /* Arredonda as bordas */
+}
+
+/* Efeito hover para o botão: muda a cor ao passar o mouse */
+.btn-add:hover {
+    background-color: #218838;  /* Tom de verde mais escuro */
+}
+
+/* Versão da classe bg-img que garante altura total da viewport */
+.bg-img {
+    background-image: url('img/Filmstrip.jpg'); /* Repetido para garantir fallback */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;  /* Ocupa 100% da altura da tela */
+    margin: 0;
+    padding: 0;
+}

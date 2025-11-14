@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Define a codificação de caracteres -->
+    <meta charset="UTF-8">
+    <!-- Faz a página se adaptar bem em dispositivos móveis -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título da aba do navegador -->
+    <title>Catálogo de Filmes</title>
+    <!-- Link para o arquivo de estilos CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<!-- Aplica a classe de fundo com imagem -->
+<body class="bg-img">
+
+    <!-- Container central que envolve todo o conteúdo -->
+    <div class="container">
+        <h1>Catálogo de Filmes</h1>
+
+        <!-- Área de busca -->
+        <section class="search-area">
+            <!-- Campo de texto onde o usuário digita o nome do filme -->
+            <input id="movieName" type="text" placeholder="Digite o nome do filme">
+            <!-- Botão que dispara a função searchMovie() do scripts.js -->
+            <button onclick="searchMovie()" class="addBtn">Buscar</button>
+        </section>
+
+        <!-- Div onde o resultado da busca (detalhes do filme) será exibido -->
+        <div id="result"></div>
+
+        <!-- Div onde serão exibidos botões de ação (ex: salvar no catálogo) -->
+        <div id="actions"></div>
+
+    </div>
+
+    <!-- Importa o arquivo de scripts JavaScript -->
+    <script src="scripts.js"></script>
+</body>
+</html>
+
+
+
