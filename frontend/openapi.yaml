@@ -1,135 +1,155 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: Catálogo de Filmes API
-  version: 1.0.0
-  description: API para buscar filmes na OMDb e gerenciar um catálogo local em SQLite.
+  title: "Catálogo de Filmes – API"
+  version: "1.0.0"
+  description: >
+    API para gerenciamento de um catálogo de filmes, incluindo:
+    - busca na OMDb API
+    - cadastro de filmes
+    - marcação de assistido
+    - avaliação do usuário
+    - exclusão e atualização
 
 servers:
   - url: http://127.0.0.1:5000
-    description: Servidor local de desenvolvimento
+    description: Localhost
 
 paths:
-  /search:
+  /search/:
     get:
-      summary: Busca filme na OMDb por título
-      description: >
-        Consulta a API externa OMDb e retorna informações básicas
-        de um filme a partir do título.
+      summary: Buscar filme na OMDb API
       parameters:
-        - name: title
-          in: query
-          description: Título do filme a ser buscado
+        - in: query
+          name: title
           required: true
           schema:
             type: string
+          description: Título do filme a ser buscado
       responses:
-        '200':
+        "200":
           description: Filme encontrado
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  title:
-                    type: string
-                  rating:
-                    type: string
-                  year:
-                    type: string
-                  poster:
-                    type: string
-        '400':
+                $ref: "#/components/schemas/OMDbMovie"
+        "400":
           description: Parâmetro title ausente
-        '404':
-          description: Filme não encontrado na OMDb
+        "404":
+          description: Filme não encontrado na OMDb API
 
-  /movies:
+  /movies/:
     get:
-      summary: Lista todos os filmes do catálogo
+      summary: Listar todos os filmes cadastrados
       responses:
-        '200':
-          description: Lista de filmes salvos
+        "200":
+          description: Lista de filmes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Movie'
+                  $ref: "#/components/schemas/Movie"
+
     post:
-      summary: Adiciona um novo filme ao catálogo
+      summary: Adicionar um novo filme ao catálogo
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MovieInput'
+              $ref: "#/components/schemas/MovieInput"
       responses:
-        '201':
-          description: Filme criado com sucesso
+        "201":
+          description: Filme cadastrado com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie'
-        '400':
-          description: Dados inválidos
+                $ref: "#/components/schemas/Movie"
+        "409":
+          description: Filme já existe no catálogo
 
   /movies/{id}:
     get:
-      summary: Obtém um filme pelo ID
+      summary: Obter um filme pelo ID
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Filme encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie'
-        '404':
+                $ref: "#/components/schemas/Movie"
+        "404":
           description: Filme não encontrado
+
     put:
-      summary: Atualiza um filme existente
+      summary: Atualizar um filme existente
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
           schema:
             type: integer
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MovieInput'
+              $ref: "#/components/schemas/MovieUpdate"
       responses:
-        '200':
-          description: Filme atualizado
+        "200":
+          description: Filme atualizado com sucesso
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Movie'
-        '404':
+                $ref: "#/components/schemas/Movie"
+        "404":
           description: Filme não encontrado
+
     delete:
-      summary: Remove um filme do catálogo
+      summary: Excluir um filme pelo ID
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
           schema:
             type: integer
       responses:
-        '200':
-          description: Filme removido com sucesso
-        '404':
+        "200":
+          description: Filme removido
+        "404":
           description: Filme não encontrado
 
+
+# ================================
+# COMPONENTS
+# ================================
 components:
   schemas:
+
+    # Retorno da OMDb API
+    OMDbMovie:
+      type: object
+      properties:
+        title:
+          type: string
+        year:
+          type: string
+        rating:
+          type: string
+        poster:
+          type: string
+      example:
+        title: "The Matrix"
+        year: "1999"
+        rating: "8.7"
+        poster: "https://m.media-amazon.com/images/M/MV5B.jpg"
+
+    # Filme armazenado no banco SQLite
     Movie:
       type: object
       properties:
@@ -137,23 +157,72 @@ components:
           type: integer
         title:
           type: string
-        rating:
-          type: string
         year:
+          type: string
+        rating:
           type: string
         poster:
           type: string
+        watched:
+          type: boolean
+        my_rating:
+          type: number
+          format: float
+      example:
+        id: 1
+        title: "The Matrix"
+        year: "1999"
+        rating: "8.7"
+        poster: "https://m.media-amazon.com/images/M/MV5B.jpg"
+        watched: true
+        my_rating: 9.0
 
+    # Dados enviados pelo frontend ao criar filme
     MovieInput:
+      type: object
+      required:
+        - title
+        - year
+        - rating
+      properties:
+        title:
+          type: string
+        year:
+          type: string
+        rating:
+          type: string
+        poster:
+          type: string
+        watched:
+          type: boolean
+        my_rating:
+          type: number
+          format: float
+      example:
+        title: "Inception"
+        year: "2010"
+        rating: "8.8"
+        poster: "https://image.jpg"
+        watched: false
+        my_rating: null
+
+    # Dados que podem ser atualizados
+    MovieUpdate:
       type: object
       properties:
         title:
           type: string
-        rating:
-          type: string
         year:
+          type: string
+        rating:
           type: string
         poster:
           type: string
-      required:
-        - title
+        watched:
+          type: boolean
+        my_rating:
+          type: number
+          format: float
+      example:
+        watched: true
+        my_rating: 8.5

@@ -1,118 +1,97 @@
-📚 MVP Catálogo de Filmes
+📚 Catálogo de Filmes – MVP (Flask + SOLID + OMDb + SQLite + Frontend JS)
 
-Projeto MVP desenvolvido com Python + Flask, SQLite, e Front-end em HTML/CSS/JS, integrando com a OMDb API para busca de filmes e persistindo dados no banco.
+Este é um MVP de catálogo de filmes que permite:
 
-🚀 Funcionalidades
+Buscar filmes na OMDb API
+Exibir título, ano, nota IMDb e poster
+Salvar o filme em um catálogo local (SQLite)
+Marcar filmes como assistidos
+Atribuir minha avaliação (nota do usuário)
+Exibir o catálogo em uma tabela interativa
+Editar status e nota direto na tabela
+Seguir o padrão SOLID com serviços, controllers e models separados
 
-Buscar filmes pela API OMDb
-Ver título, avaliação (IMDB), ano e pôster
-Salvar filmes encontrados no catálogo local
-Gerenciar filmes salvos (CRUD) - a ser desenvolvido
-Persistir dados em SQLite
-Interagir com um front-end simples em HTML + CSS + JS através de API própria com endpoints REST (/movies)
+🚀 Tecnologias Utilizadas
 
-O projeto está organizado no padrão MVC simplificado, dividido entre backend (Flask) e frontend estático.
-
-🗂️ Estrutura do Projeto
-MVP/
-│
-├── backend/
-│   ├── app.py              # Aplicação Flask + rotas + integração OMDb
-│   ├── requirements.txt    # Dependências do Python
-│   ├── README.md           # Docs específicas do backend
-│   │
-│   ├── instance/
-│   │   └── movies.db       # Banco SQLite (persistência local)
-│   │
-│   ├── log/
-│   │   └── gunicorn.detailed.log
-│   │
-│   └── models/
-│       ├── base.py         # Configuração do SQLAlchemy
-│       ├── movie.py        # Modelo Movie + métodos CRUD
-│       └── __init__.py
-│
-└── frontend/
-    ├── index.html          # Interface do usuário
-    ├── style.css           # Estilos visuais
-    ├── scripts.js          # Requisições e lógica do front
-    │
-    └── img/
-        └── Filmstrip.jpg   # Imagem decorativa
-
-⚙️ Tecnologias Utilizadas
 Backend
 Python 3.x
 Flask
 Flask-CORS
-SQLAlchemy
+SQLAlchemy (ORM)
 SQLite
-OMDb API
-HTML
-CSS
-JavaScript (fetch API)
+Requests
+Padrão SOLID
 
-Como Executar o Backend
+Frontend
 
-1. Criar ambiente virtual (opcional, mas recomendado)
-python -m venv venv
-source venv/bin/activate   # Linux / MacOS
-venv\Scripts\activate      # Windows
+HTML5
+CSS3
+JavaScript (Fetch API)
+DOM API
 
-2. Instalar dependências
+Integrações
 
-Executar dentro da pasta backend: pip install -r requirements.txt
+OMDb API para busca de filmes
+https://www.omdbapi.com/
 
-3. Executar o servidor Flask: python app.py
+🗂️ Estrutura do Projeto
+backend/
+│── app.py
+│── config.py
+│── database.py
+│── requirements.txt
+│
+├── controllers/
+│   ├── __init__.py
+│   ├── movie_controller.py
+│   ├── search_controller.py
+│
+├── models/
+│   ├── __init__.py
+│   ├── movie.py
+│
+├── services/
+│   ├── __init__.py
+│   ├── movie_service.py
+│
+└── movies.db  (gerado automaticamente)
 
+frontend/
+│── index.html
+│── style.css
+│── scripts.js
+│── img/
+│     └── Filmstrip.jpg
 
-Por padrão o servidor inicia em: http://127.0.0.1:5000
+⚙️ Como executar o projeto
+1️⃣ Instalar dependências do backend
 
-Como Executar o Frontend
+No diretório backend/: pip install -r requirements.txt
 
-O front-end é estático, basta abrir: frontend/index.html
+2️⃣ Configurar OMDb API Key
 
-Você pode rodar direto no navegador ou com um servidor simples:
+No arquivo frontend/scripts.js, ajuste: const API_KEY = "SUA_API_KEY";
 
-cd frontend
-python -m http.server 8000
+3️⃣ Iniciar o servidor Flask: python app.py
 
-A aplicação estará acessível em: http://localhost:8000
+O backend ficará disponível em: http://127.0.0.1:5000
 
-API — Endpoints Disponíveis
-🔍 Buscar filme pela OMDb
-GET /search?title=Batman
+4️⃣ Abrir o frontend
 
-Retorno:
-
-{
-  "title": "Batman",
-  "rating": "7.5",
-  "year": "1989",
-  "poster": "https://..."
-}
-
-Filmes no Catálogo (SQLite)
-➕ Criar filme
-POST /movies
-
-📄 Listar filmes
-GET /movies
-
-🔎 Obter por ID
-GET /movies/<id>
-
-✏ Atualizar filme
-PUT /movies/<id>
-
-❌ Remover filme
-DELETE /movies/<id>
+Abra o arquivo: frontend/index.html
 
 Melhorias Futuras (Roadmap)
 
+ Criar ENUM com Streamings para levantar onde foi assisito
  Implementar autenticação (usuários)
- Adicionar página de listagem de filmes salvos
  Melhorar layout com Bootstrap
  Criar filtros (ano, gênero, nota)
- Adicionar opcional: onde assistir (Utelly API)
  Criar testes unitários
+ Usar uma API de IA para traduzir o nome dos filmes em Português e apresentar ao usuário ambos os nomes
+ Futuramento trazer a sinopse dos filmes traduzida
+ Função recomenda
+ Função recomenda para quem
+
+Visão do Produto Final: o objetivo é ter uma aplicação web e mobile (Android e IOS) onde cada usuário
+pode montar o seu catálogo de filmes para compartilhar com amigos e parentes, além de montar  uma base
+que vai permitir desenvolvermos uma API para disponibilizar onde assistir os filmes. A visão do produto final é facilitar a troca de informações sobre filmes que gostamos e aproximar pessoas com gostos semelhantes para que possamos receber recomendações de filmes com probabilidade de gostarmos e não perder nosso tempo assistindo filmes que não nos agradam.
