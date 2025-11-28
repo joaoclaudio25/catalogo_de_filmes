@@ -1,0 +1,109 @@
+warning: in the working copy of 'backend/app.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/models/movie.py', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/backend/app.py b/backend/app.py[m
+[1mindex 6f09aca..141437f 100644[m
+[1m--- a/backend/app.py[m
+[1m+++ b/backend/app.py[m
+[36m@@ -1,7 +1,10 @@[m
+[32m+[m[32m#Importações necessárias[m
+ from flask import Flask, request, jsonify[m
+ from flask_cors import CORS[m
+ from models import db, Movie[m
+ import requests[m
+[32m+[m[32m# Importa exceção de integridade para tratar erros de unicidade[m
+[32m+[m[32mfrom sqlalchemy.exc import IntegrityError[m
+ [m
+ # Cria a aplicação Flask[m
+ app = Flask(__name__)[m
+[36m@@ -59,10 +62,15 @@[m [mdef search_movie():[m
+ def add_movie():[m
+     # Recebe o JSON enviado pelo front-end[m
+     data = request.json[m
+[31m-    # Chama o método Movie.create (definido no models.py)[m
+[31m-    movie = Movie.create(data)[m
+[31m-    # Retorna o filme criado com status 201 (created)[m
+[31m-    return jsonify(movie.to_dict()), 201[m
+[32m+[m[41m    [m
+[32m+[m[32m    try:[m
+[32m+[m[32m        # Chama o método Movie.create (definido no models.py)[m
+[32m+[m[32m        movie = Movie.create(data)[m
+[32m+[m[32m        # Retorna o filme criado com status 201 (created)[m
+[32m+[m[32m        return jsonify(movie.to_dict()), 201[m
+[32m+[m[32m    except IntegrityError:  # Captura erro de violação de unicidade[m
+[32m+[m[32m        db.session.rollback()  # Reverte a transação[m
+[32m+[m[32m        return jsonify({"error": "Filme já consta no catálogo"}), 400[m
+ [m
+ # READ — listar todos os filmes salvos no banco[m
+ # Preciso ajustar o front para consumir esse endpoint e listar os filmes salvos[m
+[1mdiff --git a/backend/instance/movies.db b/backend/instance/movies.db[m
+[1mindex db44fcd..2511840 100644[m
+Binary files a/backend/instance/movies.db and b/backend/instance/movies.db differ
+[1mdiff --git a/backend/models/__pycache__/movie.cpython-312.pyc b/backend/models/__pycache__/movie.cpython-312.pyc[m
+[1mindex a0fcab7..d6c10fe 100644[m
+Binary files a/backend/models/__pycache__/movie.cpython-312.pyc and b/backend/models/__pycache__/movie.cpython-312.pyc differ
+[1mdiff --git a/backend/models/movie.py b/backend/models/movie.py[m
+[1mindex 3e937d4..4c8e949 100644[m
+[1m--- a/backend/models/movie.py[m
+[1m+++ b/backend/models/movie.py[m
+[36m@@ -1,19 +1,26 @@[m
+ # Importa o objeto 'db' definido em models/base.py (exposto em models/__init__.py)[m
+ from . import db[m
+[31m-[m
+[32m+[m[32m# Importa o módulo de restrições únicas do SQLAlchemy[m
+[32m+[m[32mfrom sqlalchemy import UniqueConstraint[m[41m [m
+ # Define o modelo Movie que será mapeado para uma tabela no banco de dados[m
+ class Movie(db.Model):[m
+[32m+[m[41m    [m
+[32m+[m[32m    tablename = 'movies'  # Nome da tabela no banco[m
+     # Coluna ID, chave primária, numérica, auto-incremento[m
+     id = db.Column(db.Integer, primary_key=True)[m
+[31m-    # Título do filme[m
+[31m-    title = db.Column(db.String(150))[m
+[32m+[m[32m    # Título do filme não pode ser nulo[m
+[32m+[m[32m    title = db.Column(db.String(150), nullable=False)[m
+     # Nota (rating) do IMDB ou outra fonte[m
+     rating = db.Column(db.String(10))[m
+     # Ano de lançamento[m
+     year = db.Column(db.String(10))[m
+     # URL do pôster do filme[m
+     poster = db.Column(db.String(300))[m
+[31m-[m
+[32m+[m[32m    # Restrição de unicidade para evitar filmes duplicados (mesmo título e ano)[m
+[32m+[m[32m    __table_args__ = ([m
+[32m+[m[32m        UniqueConstraint("title", "year", name="uix_title_year"),[m
+[32m+[m[32m    )[m
+[32m+[m[41m    [m
+     # Converte o objeto Movie em um dicionário (útil para jsonify)[m
+     def to_dict(self):[m
+         return {[m
+[1mdiff --git a/frontend/scripts.js b/frontend/scripts.js[m
+[1mindex 927b59b..0c3ce70 100644[m
+[1m--- a/frontend/scripts.js[m
+[1m+++ b/frontend/scripts.js[m
+[36m@@ -82,14 +82,21 @@[m [masync function saveMovie(movieData) {[m
+         });[m
+ [m
+         // Verifica se o backend respondeu com sucesso (status 2xx)[m
+[31m-        if (response.ok) {[m
+[32m+[m[32m        if (response.status === 201) {[m
+             alert("Filme salvo com sucesso!");[m
+[31m-        } else {[m
+[31m-            alert("Erro ao salvar filme.");[m
+[32m+[m[32m            return;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        // Verifica se o filme já existe (status 409 - conflito)[m
+[32m+[m[32m        if (response.status === 409) {[m
+[32m+[m[32m            alert("❌ Filme já cadastrado no catálogo!");[m
+[32m+[m[32m            return;[m
+         }[m
+[32m+[m[32m            // Para outros erros, exibe mensagem genérica[m
+[32m+[m[32m        alert("Erro ao cadastrar filme.");[m
+[32m+[m[41m      [m
+[32m+[m[32m        // Loga a resposta para debug[m
+     } catch (error) {[m
+[31m-        // Erro de rede ou CORS ao falar com o backend[m
+[31m-        alert("Erro ao conectar ao servidor.");[m
+[32m+[m[32m        alert("Falha ao conectar ao servidor.");[m
+         console.error(error);[m
+     }[m
+ }[m

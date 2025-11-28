@@ -83,7 +83,6 @@ API — Endpoints Disponíveis
 🔍 Buscar filme pela OMDb
 GET /search?title=Batman
 
-
 Retorno:
 
 {

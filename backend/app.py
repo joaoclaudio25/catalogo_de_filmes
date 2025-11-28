@@ -1,7 +1,10 @@
+#Importações necessárias
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import db, Movie
 import requests
+# Importa exceção de integridade para tratar erros de unicidade
+from sqlalchemy.exc import IntegrityError
 
 # Cria a aplicação Flask
 app = Flask(__name__)
@@ -59,10 +62,15 @@ def search_movie():
 def add_movie():
     # Recebe o JSON enviado pelo front-end
     data = request.json
-    # Chama o método Movie.create (definido no models.py)
-    movie = Movie.create(data)
-    # Retorna o filme criado com status 201 (created)
-    return jsonify(movie.to_dict()), 201
+    
+    try:
+        # Chama o método Movie.create (definido no models.py)
+        movie = Movie.create(data)
+        # Retorna o filme criado com status 201 (created)
+        return jsonify(movie.to_dict()), 201
+    except IntegrityError:  # Captura erro de violação de unicidade
+        db.session.rollback()  # Reverte a transação
+        return jsonify({"error": "Filme já consta no catálogo"}), 400
 
 # READ — listar todos os filmes salvos no banco
 # Preciso ajustar o front para consumir esse endpoint e listar os filmes salvos

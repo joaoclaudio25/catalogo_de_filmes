@@ -1,19 +1,19 @@
-# Importa o objeto 'db' definido em models/base.py (exposto em models/__init__.py)
-from . import db
-
-# Define o modelo Movie que será mapeado para uma tabela no banco de dados
+from . import db # Importa o objeto 'db' definido em models/base.py (exposto em models/__init__.py)
+from sqlalchemy import UniqueConstraint # Importa o módulo de restrições únicas do SQLAlchemy
 class Movie(db.Model):
-    # Coluna ID, chave primária, numérica, auto-incremento
-    id = db.Column(db.Integer, primary_key=True)
-    # Título do filme
-    title = db.Column(db.String(150))
-    # Nota (rating) do IMDB ou outra fonte
-    rating = db.Column(db.String(10))
-    # Ano de lançamento
-    year = db.Column(db.String(10))
-    # URL do pôster do filme
-    poster = db.Column(db.String(300))
-
+    
+    tablename = 'movies'  # Nome da tabela no banco
+    id = db.Column(db.Integer, primary_key=True) # Coluna ID, chave primária, numérica, auto-incremento
+    title = db.Column(db.String(150), nullable=False)  # Título do filme não pode ser nulo
+    rating = db.Column(db.String(10))  # Nota (rating) do IMDB ou outra fonte
+    year = db.Column(db.String(10)) # Ano de lançamento
+    poster = db.Column(db.String(300)) # URL do pôster do filme
+    watched = db.Column(db.Boolean, default=False)  # Indica se o filme foi assistido ou não
+    my_rating = db.Column(db.Float, nullable=True) # Minha avaliação pessoal do filme
+    # Restrição de unicidade para evitar filmes duplicados (mesmo título e ano)
+    __table_args__ = (
+        UniqueConstraint("title", "year", name="uix_title_year"),
+    )
     # Converte o objeto Movie em um dicionário (útil para jsonify)
     def to_dict(self):
         return {
@@ -21,7 +21,10 @@ class Movie(db.Model):
             "title": self.title,
             "rating": self.rating,
             "year": self.year,
-            "poster": self.poster
+            "poster": self.poster,
+            "watched": self.watched,
+            "my_rating": self.my_rating
+            
         }
 
     # Cria e salva um novo filme no banco
@@ -32,12 +35,13 @@ class Movie(db.Model):
             title=data.get("title"),
             rating=data.get("rating"),
             year=data.get("year"),
-            poster=data.get("poster")
+            poster=data.get("poster"),
+            watched=data.get("watched", False), # Padrão é False pois se entende que ao criar, ainda não foi assistido
+            my_rating=data.get("my_rating")
         )
-        # Adiciona ao contexto de sessão
-        db.session.add(movie)
-        # Confirma a transação (salva no banco)
-        db.session.commit()
+        
+        db.session.add(movie) # Adiciona ao contexto de sessão
+        db.session.commit()  # Confirma a transação (salva no banco)
         return movie
 
     # Retorna todos os filmes cadastrados
@@ -53,8 +57,8 @@ class Movie(db.Model):
     # Atualiza os dados de um filme pelo ID
     @staticmethod
     def update(movie_id, data):
-        # Busca o filme no banco
-        movie = Movie.query.get(movie_id)
+        
+        movie = Movie.query.get(movie_id) # Busca o filme no banco
         # Se não encontrar, retorna None
         if not movie:
             return None
@@ -64,6 +68,8 @@ class Movie(db.Model):
         movie.rating = data.get("rating", movie.rating)
         movie.year = data.get("year", movie.year)
         movie.poster = data.get("poster", movie.poster)
+        movie.watched = data.get("watched", movie.watched)
+        movie.my_rating = data.get("my_rating", movie.my_rating)
 
         # Salva as alterações
         db.session.commit()

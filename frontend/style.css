@@ -1,65 +1,85 @@
 /* Estilo geral do corpo da página */
 body {
-    margin: 0;                /* Remove margens padrão do navegador */
-    padding: 0;               /* Remove espaçamentos internos padrão */
-    color: #fff;              /* Cor padrão do texto (branco) */
+    margin: 0; /* Remove margens padrão do navegador */
+    padding: 0; /* Remove padding padrão do navegador */
+    color: #ffffff; /* Deixa o texto padrão branco */
     font-family: Arial, sans-serif; /* Fonte padrão */
 }
 
 /* Classe aplicada ao body para usar imagem de fundo */
 .bg-img {
     background-image: url('img/Filmstrip.jpg'); /* Caminho da imagem de fundo */
-    background-size: cover;                     /* Faz a imagem cobrir toda a área */
-    background-position: center;                /* Centraliza a imagem */
-    background-repeat: no-repeat;               /* Não repete a imagem */
+    background-size: cover; /* Cobre toda a área */
+    background-position: center; /* Centraliza a imagem */
+    background-repeat: no-repeat; /* Não repete a imagem */
 }
 
-/* Container centralizado que contém o conteúdo principal */
+/* Container */
 .container {
-    width: 80%;                     /* Largura em relação à tela */
-    margin: auto;                   /* Centraliza horizontalmente */
-    padding: 20px;                  /* Espaçamento interno */
-    background: rgba(0,0,0,0.6);    /* Fundo preto semi-transparente */
-    border-radius: 10px;            /* Arredonda bordas */
-    margin-top: 40px;               /* Espaço superior em relação ao topo da tela */
+    width: 80%; /*Largura de 80% da tela */
+    margin: auto; /* Centraliza horizontalmente */
+    padding: 20px; /* Espaçamento interno */
+    background: rgba(0,0,0,0.6); /* Fundo preto com transparência */
+    border-radius: 10px; /* Bordas arredondadas */
+    margin-top: 40px; /* Espaço superior */
 }
 
-/* Estilo para inputs de texto */
+/* TÍTULOS EM BRANCO */
+h1, h2, h3 {
+    color: #ffffff; /* Títulos em branco */
+}
+
+/* Input */
 input {
-    padding: 10px;      /* Espaçamento interno */
-    width: 70%;         /* Largura relativa ao container */
+    padding: 10px; /* Espaçamento interno */
+    width: 70%; /* Largura de 70% */
 }
 
-/* Estilo geral para botões */
+/* Botões padrões */
 button {
-    padding: 10px;      /* Espaçamento interno */
-    cursor: pointer;    /* Mostra a mãozinha ao passar o mouse */
+    padding: 10px; /* Espaçamento interno */
+    cursor: pointer; /* Cursor de mãozinha */
 }
 
-/* Estilo específico para o botão principal (Buscar / Salvar) */
-.btn-add {
-    padding: 10px 20px;         /* Espaçamento interno (vertical x horizontal) */
-    background-color: #28a745;  /* Cor de fundo (verde) */
-    border: none;               /* Remove borda padrão */
-    color: #fff;                /* Cor do texto (branco) */
-    font-weight: bold;          /* Deixa o texto em negrito */
-    cursor: pointer;            /* Mostra a mãozinha ao passar o mouse */
-    margin-top: 15px;           /* Espaço superior */
-    border-radius: 6px;         /* Arredonda as bordas */
+/* Botões principais: buscar, salvar */
+.btn-add, .addBtn {
+    padding: 10px 20px; /* Espaçamento interno */
+    background-color: #0c912b; /* verde */
+    border: none; /* Sem borda */
+    color: #ffffff; /* TEXTO BRANCO */
+    font-weight: bold; /* Negrito */
+    cursor: pointer;
+    margin-top: 15px;
+    border-radius: 6px;
 }
 
-/* Efeito hover para o botão: muda a cor ao passar o mouse */
-.btn-add:hover {
-    background-color: #218838;  /* Tom de verde mais escuro */
+.btn-add:hover, .addBtn:hover {
+    background-color: #218838; /* Verde mais escuro ao passar o mouse */
 }
 
-/* Versão da classe bg-img que garante altura total da viewport */
-.bg-img {
-    background-image: url('img/Filmstrip.jpg'); /* Repetido para garantir fallback */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;  /* Ocupa 100% da altura da tela */
-    margin: 0;
-    padding: 0;
+/* Catálogo */
+.catalog-table {
+    width: 100%; /* Largura total */
+    background: #ffffff1a; /* Fundo branco com transparência */
+    border-collapse: collapse; /* Remove espaços entre células */
+    margin-top: 20px; /* Espaço superior */
+}
+
+.catalog-table th, /* CÉLULAS DA TABELA */
+.catalog-table td {
+    padding: 8px;
+    border: 1px solid #333;
+    color: #000 !important; /* Preto forte */
+}
+
+/* CABEÇALHO DA TABELA EM BRANCO */
+.catalog-table th {
+    background: #0056b3;
+    color: #181616; /* Cor do texto do cabeçalho */
+}
+
+/* Imagem da tabela */
+.catalog-table img {
+    max-width: 60px;
+    border-radius: 4px;
 }

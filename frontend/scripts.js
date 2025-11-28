@@ -1,41 +1,33 @@
-// Chave da API OMDb (em produção é melhor usar no backend, mas aqui está exposta no front)
-const API_KEY = "7baf41a"; // sua API key OMDb
-// URL base do backend para salvar filmes
-const BACKEND_URL = "http://127.0.0.1:5000/movies"; // endpoint do Flask
+// Chave da API OMDb
+const API_KEY = "7baf41a";
+const BACKEND_URL = "http://127.0.0.1:5000/movies";
 
-// Função chamada ao clicar no botão "Buscar"
-async function searchMovie() {
-    // Lê o valor digitado no input e remove espaços extras
+// ---------------------------
+// BUSCAR FILME NA OMDB
+// ---------------------------
+async function searchMovie() { 
     const movieName = document.getElementById("movieName").value.trim();
-    // Referência à div que exibirá o resultado do filme
     const resultDiv = document.getElementById("result");
-    // Referência à div que exibirá os botões de ação (ex: salvar)
     const actionsDiv = document.getElementById("actions");
 
-    // Se o usuário não digitou nada, mostra uma mensagem e interrompe
     if (!movieName) {
         resultDiv.innerHTML = "<p>Digite um nome de filme.</p>";
         actionsDiv.innerHTML = "";
         return;
     }
 
-    // Monta a URL da OMDb com a chave e o título do filme
     const url = `https://www.omdbapi.com/?apikey=${API_KEY}&t=${movieName}`;
 
     try {
-        // Faz a requisição para a API OMDb
         const response = await fetch(url);
-        // Converte a resposta para JSON
         const data = await response.json();
 
-        // Se a API indicar que não encontrou, exibe mensagem
         if (data.Response === "False") {
             resultDiv.innerHTML = "<p>Filme não encontrado.</p>";
             actionsDiv.innerHTML = "";
             return;
         }
 
-        // Exibe informações básicas do filme
         resultDiv.innerHTML = `
             <h2>${data.Title}</h2>
             <p><strong>Avaliação:</strong> ${data.imdbRating}</p>
@@ -43,25 +35,23 @@ async function searchMovie() {
             <img src="${data.Poster}" alt="Poster" width="200">
         `;
 
-        // Cria botão de salvar no catálogo
         actionsDiv.innerHTML = `
             <button id="saveBtn" class="addBtn">Salvar no Catálogo</button>
         `;
 
-        // Associa o clique do botão à função saveMovie, passando os dados do filme
         document.getElementById("saveBtn").onclick = () => saveMovie(data);
 
     } catch (error) {
-        // Em caso de erro na requisição (rede, CORS, etc.)
         resultDiv.innerHTML = "<p>Erro ao consultar API.</p>";
         console.error(error);
     }
 }
 
-// Função para salvar o filme no backend
+// ---------------------------
+// SALVAR FILME NO CATÁLOGO
+// ---------------------------
 async function saveMovie(movieData) {
 
-    // Monta o payload com os campos que o backend espera
     const payload = {
         title: movieData.Title,
         year: movieData.Year,
@@ -70,26 +60,149 @@ async function saveMovie(movieData) {
     };
 
     try {
-        // Faz uma requisição POST para o backend
         const response = await fetch(BACKEND_URL, {
             method: "POST",
-            headers: {
-                // Define corretamente o tipo de conteúdo como JSON
-                "Content-Type": "application/json"
-            },
-            // Converte o objeto payload para string JSON
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        // Verifica se o backend respondeu com sucesso (status 2xx)
-        if (response.ok) {
+        if (response.status === 201) {
             alert("Filme salvo com sucesso!");
-        } else {
-            alert("Erro ao salvar filme.");
+            loadCatalog();  // recarrega tabela
+            return;
         }
+
+        if (response.status === 409) {
+            alert("❌ Filme já cadastrado no catálogo!");
+            return;
+        }
+
+        alert("Erro ao cadastrar filme.");
+
     } catch (error) {
-        // Erro de rede ou CORS ao falar com o backend
-        alert("Erro ao conectar ao servidor.");
+        alert("Falha ao conectar ao servidor.");
         console.error(error);
     }
 }
+
+// ---------------------------
+// CARREGAR CATÁLOGO
+// ---------------------------
+async function loadCatalog() {
+    const url = "http://127.0.0.1:5000/movies";
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const tbody = document.getElementById("catalogBody");
+        tbody.innerHTML = "";
+
+        data.forEach(movie => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${movie.id}</td>
+                <td>${movie.title}</td>
+                <td>${movie.year}</td>
+                <td>${movie.rating}</td>
+
+                <!-- Checkbox Assistido -->
+                <td>
+                    <input 
+                        type="checkbox" 
+                        ${movie.watched ? "checked" : ""}
+                        onchange="updateWatched(${movie.id}, this.checked)"
+                    >
+                </td>
+
+                <!-- Campo Minha Nota -->
+                <td>
+                    <input 
+                        type="number" 
+                        step="0.1" 
+                        min="0" 
+                        max="10"
+                        value="${movie.my_rating ?? ""}"
+                        ${movie.watched ? "" : "disabled"}
+                        onchange="updateMyRating(${movie.id}, this.value)"
+                    >
+                </td>
+
+                <td><img src="${movie.poster}" alt="Poster"></td>
+
+                <td>
+                    <button onclick="deleteMovie(${movie.id})">Excluir</button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar catálogo:", error);
+    }
+}
+
+// ---------------------------
+// EXCLUIR FILME DO CATÁLOGO
+// ---------------------------
+async function deleteMovie(id) {
+    if (!confirm("Deseja realmente excluir este filme?")) return;
+
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/movies/${id}`, {
+            method: "DELETE"
+        });
+
+        if (response.ok) {
+            alert("Filme excluído!");
+            loadCatalog();
+        } else {
+            alert("Erro ao excluir.");
+        }
+    } catch (error) {
+        console.error("Erro ao excluir filme:", error);
+    }
+}
+
+// ---------------------------
+// Função para atualizar o status de assistido
+// ---------------------------
+async function updateWatched(id, watched) {
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/movies/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ watched })
+        });
+
+        await loadCatalog();
+
+    } catch (error) {
+        console.error("Erro ao atualizar assistido:", error);
+    }
+}
+
+//Função para atualizar minha nota
+async function updateMyRating(id, rating) {
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/movies/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ my_rating: rating })
+        });
+
+        await loadCatalog();
+
+    } catch (error) {
+        console.error("Erro ao atualizar minha nota:", error);
+    }
+}
+
+
+
+// ---------------------------
+// CARREGAR A TABELA AO ABRIR A PÁGINA
+// ---------------------------
+window.onload = loadCatalog;
